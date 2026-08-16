@@ -1,0 +1,24 @@
+{
+  "name": "chichobot-gemini-v12",
+  "version": "1.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "index:manuals": "python scripts/build_index.py"
+  },
+  "dependencies": {
+    "@google/genai": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "pdf-lib": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest"
+  }
+}
