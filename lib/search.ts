@@ -41,6 +41,12 @@ const SYNONYMS: Record<string, string[]> = {
   flujo: ["flujo", "etapa", "proceso", "procedimiento", "paso", "pasos"],
   hito: ["hito", "hitos", "etapa", "cronograma", "tiempos"],
   hitos: ["hito", "hitos", "etapa", "cronograma", "tiempos"],
+  tiempo: ["tiempo", "tiempos", "duración", "duracion", "demora", "plazo", "cronograma", "día", "dias", "días", "total"],
+tiempos: ["tiempo", "tiempos", "duración", "duracion", "demora", "plazo", "cronograma", "día", "dias", "días", "total"],
+duracion: ["duración", "duracion", "tiempo", "tiempos", "demora", "plazo", "días", "dias", "total"],
+duración: ["duración", "duracion", "tiempo", "tiempos", "demora", "plazo", "días", "dias", "total"],
+demora: ["demora", "duración", "duracion", "tiempo", "tiempos", "plazo", "días", "dias"],
+obra: ["obra", "construcción", "construccion", "desmontaje", "implementación", "implementacion", "apertura"],
 };
 
 function normalize(value: string) {
@@ -74,6 +80,11 @@ function measurementIntent(query: string) {
   return /\b(cuanto|cuánto|mide|medida|medidas|altura|ancho|largo|espesor|dimension|dimensión)\b/.test(q);
 }
 
+function timeIntent(query: string) {
+  const q = normalize(query);
+  return /\b(tiempo|tiempos|duracion|dura|durar|demora|plazo|cronograma|dias|dia)\b/.test(q);
+}
+
 function countWord(body: string, term: string) {
   const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return Math.min(10, (body.match(new RegExp(`\\b${escaped}\\b`, "g")) || []).length);
@@ -83,6 +94,7 @@ export function searchManuals(query: string, limit = 8) {
   const q = normalize(query);
   const { base, expanded } = expandedTerms(query);
   const wantsMeasure = measurementIntent(query);
+  const wantsTime = timeIntent(query);
   const primaryObject = base.find(t => !["cuanto", "mide", "medida", "medidas", "altura", "ancho", "largo", "espesor", "dimension"].includes(t));
 
   const scored = pages.map(page => {
@@ -113,7 +125,17 @@ export function searchManuals(query: string, limit = 8) {
       if (/\bh\s*[=:]\s*\d/.test(body)) score += 14;
       if (/\be\s*[=:]\s*\d/.test(body)) score += 8;
     }
-
+// Si preguntan por tiempos, prioriza páginas con duración total,
+// días, hitos y etapas de obra.
+if (wantsTime) {
+  if (body.includes("tiempos de obra")) score += 45;
+  if (/\btotal\s+\d+\s*dias\b/.test(body)) score += 30;
+  if (/\b\d+\s*dias\b/.test(body)) score += 12;
+  if (body.includes("hito")) score += 10;
+  if (body.includes("implementacion")) score += 8;
+  if (body.includes("desmontaje")) score += 8;
+  if (body.includes("apertura")) score += 8;
+}
     // Cobertura de términos originales: evita páginas con coincidencias accidentales.
     const coverage = base.filter(t => body.includes(t)).length;
     score += coverage * coverage * 4;
