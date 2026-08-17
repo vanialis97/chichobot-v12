@@ -107,7 +107,7 @@ export default function Home() {
 
   return <div className="app-shell">
     <aside className="sidebar">
-      <div className="avatar"><img src="/chicho.png" alt="ChichoBot" /></div><div><b>ChichoBot</b><span>Asistente de Infraestructura · Interbank</span></div></div>
+      <div className="brand"><div className="avatar"><img src="/chicho.png" alt="ChichoBot" /></div><div><b>ChichoBot</b><span>Asistente de Infraestructura · Interbank</span></div></div>
       <button className="new-chat" onClick={newChat}>＋ Nuevo chat</button>
       <nav>{nav.map(([icon,label]) => <button key={label} className={activeTab===label?"nav active":"nav"} onClick={() => setActiveTab(label)}><span>{icon}</span>{label}</button>)}</nav>
       <div className="section-title">ADMINISTRACIÓN</div>
