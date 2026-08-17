@@ -58,7 +58,7 @@ CITAS:
   const interaction = await ai.interactions.create({
     model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
     system_instruction: system,
-    generation_config: { temperature: 0.1, thinking_level: "low" },
+    generation_config: { thinking_level: "low" },
     input: [
       { type: "document", data: evidence.base64, mime_type: "application/pdf" },
       { type: "text", text: prompt },
