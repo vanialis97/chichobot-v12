@@ -56,7 +56,7 @@ CITAS:
   const prompt = `HISTORIAL RECIENTE (solo para entender referencias):\n${historyBlock(history)}\n\nPREGUNTA ACTUAL:\n${question}\n\nMAPA DEL PDF DE EVIDENCIA:\n${manifest}\n\nFUENTES TEXTUALES AUTORIZADAS:\n${contextBlock(hits)}\n\nAnaliza también visualmente el PDF adjunto antes de responder, especialmente si contiene flujos, diagramas, tablas, gráficos o cotas.`;
 
   const interaction = await ai.interactions.create({
-    model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
+    mmodel: process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
     system_instruction: system,
     generation_config: { thinking_level: "low" },
     input: [
