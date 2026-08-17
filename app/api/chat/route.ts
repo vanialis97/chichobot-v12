@@ -4,12 +4,26 @@ import { confidenceFor, searchManuals } from "@/lib/search";
 
 function contextualSearchQuery(question: string, history: ChatHistoryItem[]) {
   const q = question.trim();
-  // Si la pregunta es muy corta o referencial ("¿y en Express?", "¿y el alto?"),
-  // añade la última pregunta del usuario para recuperar el contexto técnico.
-  const looksReferential = q.split(/\s+/).length <= 5 || /\b(y|eso|esa|ese|ahi|allí|mismo|misma|tambien|también)\b/i.test(q);
-  if (!looksReferential) return q;
-  const previousUser = [...history].reverse().find(m => m.role === "user" && m.content.trim() && m.content.trim() !== q);
-  return previousUser ? `${previousUser.content} ${q}` : q;
+
+  // Solo usamos contexto previo cuando la pregunta realmente parece
+  // una continuación del tema anterior.
+  const looksReferential =
+    /^(¿?\s*)?(y|también|entonces|además)\b/i.test(q) ||
+    /\b(eso|esa|ese|esto|esta|este|ahí|allí|lo mismo|la misma|el mismo)\b/i.test(q) ||
+    /\b(el alto|la altura|la medida|el material|el color|el código|la ubicación|la distancia|el ancho|el largo)\b/i.test(q);
+
+  if (!looksReferential) return null;
+
+  const previousUser = [...history]
+    .reverse()
+    .find(
+      m =>
+        m.role === "user" &&
+        m.content.trim() &&
+        m.content.trim() !== q
+    );
+
+  return previousUser ? `${previousUser.content} ${q}` : null;
 }
 
 export async function POST(req: Request) {
@@ -22,9 +36,28 @@ export async function POST(req: Request) {
 
     if (!question) return NextResponse.json({ error: "Escribe una pregunta." }, { status: 400 });
 
-    const searchQuery = contextualSearchQuery(question, history);
-    const hits = searchManuals(searchQuery, 8);
-    const confidence = confidenceFor(hits);
+    // Siempre buscamos primero la pregunta actual sola.
+let hits = searchManuals(question, 8);
+let confidence = confidenceFor(hits);
+
+// Solo si no hay evidencia suficiente,
+// intentamos recuperar contexto de la conversación.
+if (!hits.length || confidence === "sin_evidencia") {
+  const contextualQuery = contextualSearchQuery(question, history);
+
+  if (contextualQuery) {
+    const contextualHits = searchManuals(contextualQuery, 8);
+    const contextualConfidence = confidenceFor(contextualHits);
+
+    if (
+      contextualHits.length &&
+      contextualConfidence !== "sin_evidencia"
+    ) {
+      hits = contextualHits;
+      confidence = contextualConfidence;
+    }
+  }
+}
 
     if (!hits.length || confidence === "sin_evidencia") {
       return NextResponse.json({
