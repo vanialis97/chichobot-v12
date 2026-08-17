@@ -107,7 +107,7 @@ export default function Home() {
 
   return <div className="app-shell">
     <aside className="sidebar">
-      <div className="brand"><div className="avatar">🐷</div><div><b>ChichoBot</b><span>Asistente de Infraestructura · Interbank</span></div></div>
+      <div className="avatar"><img src="/chicho.png" alt="ChichoBot" /></div><div><b>ChichoBot</b><span>Asistente de Infraestructura · Interbank</span></div></div>
       <button className="new-chat" onClick={newChat}>＋ Nuevo chat</button>
       <nav>{nav.map(([icon,label]) => <button key={label} className={activeTab===label?"nav active":"nav"} onClick={() => setActiveTab(label)}><span>{icon}</span>{label}</button>)}</nav>
       <div className="section-title">ADMINISTRACIÓN</div>
@@ -128,7 +128,7 @@ export default function Home() {
         <div className="chat-scroll">
           {messages.length === 1 && <div className="quick-row">{quick.map(q=><button onClick={()=>ask(q)} key={q}>{q}</button>)}</div>}
           {messages.map(m => <div className={`message-row ${m.role}`} key={m.id}>
-            {m.role === "assistant" && <div className="avatar mini">🐷</div>}
+           {m.role === "assistant" && <div className="avatar mini"><img src="/chicho.png" alt="ChichoBot" /></div>}
             <div className={`bubble ${m.role}`}>
               {m.role === "assistant" && m.confidence && <span className={`confidence ${m.confidence}`}>{confidenceLabel(m.confidence)}</span>}
               <div className="message-text">{m.role === "assistant" ? <RichText text={m.content}/> : m.content}</div>
@@ -143,7 +143,7 @@ export default function Home() {
             </div>
             {m.role === "user" && <div className="you">TÚ</div>}
           </div>)}
-          {loading && <div className="message-row assistant"><div className="avatar mini">🐷</div><div className="bubble assistant typing">Buscando únicamente en los manuales<span>•••</span></div></div>}
+          {loading && <div className="message-row assistant"><div className="avatar mini"><img src="/chicho.png" alt="ChichoBot" /></div><div className="bubble assistant typing">Buscando únicamente en los manuales<span>•••</span></div></div>}
         </div>
         <form className="composer" onSubmit={(e:FormEvent)=>{e.preventDefault();ask()}}><input value={question} onChange={e=>setQuestion(e.target.value)} placeholder="Escribe tu pregunta sobre los manuales..."/><button disabled={loading}>➤</button></form>
         <div className="disclaimer">ChichoBot responde solo con información encontrada en los manuales cargados. Cada fuente abre el PDF directamente en la página consultada.</div>
